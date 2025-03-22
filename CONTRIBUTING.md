@@ -332,3 +332,49 @@ Please follow the [Code of Conduct](https://github.com/OWASP/Nest/blob/main/CODE
 ---
 
 Thank you for contributing to Nest! Your contributions help make this project better for everyone.
+
+<!-- Temp documentation of kubernates -->
+## Kubernates
+### Install helms
+```bash
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+```
+
+### Install minikube
+```bash
+curl -LO https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
+```
+
+### Install kubectl
+```bash
+  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+```
+
+### Docker
+```bash
+sudo usermod -aG docker $USER
+```
+
+
+### Helm commands
+```bash
+helm dependency update
+```
+for local
+```bash
+helm install nest . -f values-local.yaml
+```
+for production
+```bash
+helm upgrade --install nest . \
+  -f values-production.yaml \
+  --set postgresql.auth.password=$DB_PASSWORD \
+  --set secrets.djangoSecretKey=$DJANGO_SECRET \
+  --atomic \
+  --timeout 5m
+```
+```bash
+kubectl get pods,svc,ing
+```

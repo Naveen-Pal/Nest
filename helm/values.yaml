@@ -1,0 +1,69 @@
+global:
+  env: development
+  domain: nest.local
+  
+backend:
+  replicaCount: 2
+  image:
+    repository: arkid15r/owasp-nest-backend
+    tag: latest
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  env:
+    config:
+      DJANGO_SETTINGS_MODULE: settings.production
+      DJANGO_DEBUG: "False"
+  
+frontend:
+  replicaCount: 2
+  image:
+    repository: arkid15r/owasp-nest-frontend
+    tag: latest
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+postgresql:
+  enabled: true
+  auth:
+    database: nest
+    username: nest
+    password: "changeme"
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: "standard"
+
+prometheus:
+  enabled: true
+  alertmanager:
+    config:
+      global:
+        slack_api_url: ""
+      route:
+        receiver: 'slack'
+      receivers:
+      - name: 'slack'
+        slack_configs:
+        - channel: '#alerts'
+          send_resolved: true
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: nest.local
+      paths:
+        - path: /
+          pathType: Prefix
+        - path: /api
+          pathType: Prefix
+  tls:
+    - secretName: nest-tls
+      hosts:
+        - nest.local

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  DJANGO_SETTINGS_MODULE: {{ .Values.backend.env.config.DJANGO_SETTINGS_MODULE | quote }}
+  DJANGO_DEBUG: {{ .Values.backend.env.config.DJANGO_DEBUG | quote }}
+  DJANGO_ALLOWED_HOSTS: {{ .Values.global.domain | quote }}
