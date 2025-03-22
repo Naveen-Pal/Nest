@@ -1,0 +1,45 @@
+global:
+  env: local
+  domain: nest.local
+
+backend:
+  replicaCount: 1
+  image:
+    repository: arkid15r/owasp-nest-backend
+    tag: local
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+frontend:
+  replicaCount: 1
+  image:
+    repository: arkid15r/owasp-nest-frontend
+    tag: local
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+postgresql:
+  enabled: true
+  auth:
+    database: nest_db_dev
+    username: nest_user_dev
+    password: nest_user_dev_password
+  persistence:
+    enabled: false
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: nest.local
+      paths:
+        - path: /
+        - path: /api
+        - path: /docs
+  tls: []

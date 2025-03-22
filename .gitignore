@@ -15,6 +15,7 @@ __pycache__
 .python_history
 .python-version
 .ruff_cache
+.tgz
 .vscode
 venv/
 *.code-workspace

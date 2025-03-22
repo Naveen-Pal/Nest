@@ -48,3 +48,4 @@ update-dependencies: \
 update-nest-app-dependencies: \
 	update-backend-dependencies \
 	update-frontend-dependencies
+kubernates-set-up: \

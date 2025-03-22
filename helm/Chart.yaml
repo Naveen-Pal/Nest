@@ -1,0 +1,12 @@
+apiVersion: v2
+name: owasp-nest
+description: OWASP Nest Application
+version: 1.0.0
+appVersion: "2.0.0"
+dependencies:
+- name: postgresql
+  version: 13.2.8
+  repository: https://charts.bitnami.com/bitnami
+- name: kube-prometheus-stack
+  version: 45.0.0
+  repository: https://prometheus-community.github.io/helm-charts

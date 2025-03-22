@@ -1,0 +1,23 @@
+global:
+  env: staging
+  domain: staging.nest.owasp.org
+
+backend:
+  replicaCount: 2
+  image:
+    tag: staging
+
+frontend:
+  replicaCount: 2
+  image:
+    tag: staging
+
+postgresql:
+  persistence:
+    size: 20Gi
+
+ingress:
+  tls:
+    - secretName: nest-staging-tls
+      hosts:
+        - nest.owasp.dev
