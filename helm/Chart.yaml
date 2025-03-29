@@ -1,17 +1,34 @@
 apiVersion: v2
 name: owasp-nest
 description: OWASP Nest Application
-version: 1.0.0
+type: application
+version: 1.1.0
 appVersion: "2.0.0"
 dependencies:
-- name: postgresql
-  version: 13.2.8
-  repository: https://charts.bitnami.com/bitnami
-- name: victoria-metrics-single
-  version: ~0.8.0
-  repository: https://victoriametrics.github.io/helm-charts/
-  condition: victoria-metrics-single.enabled
-- name: grafana
-  version: ~6.50.0
-  repository: https://grafana.github.io/helm-charts
-  condition: grafana.enabled
+  - name: postgresql
+    version: 13.2.8
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+    tags:
+      - database
+      - stateful
+  - name: victoria-metrics-single
+    version: 0.8.13
+    repository: https://victoriametrics.github.io/helm-charts/
+    condition: monitoring.enabled
+  - name: grafana
+    version: 6.56.4
+    repository: https://grafana.github.io/helm-charts
+    condition: monitoring.enabled
+  - name: prometheus
+    version: 25.1.0
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: monitoring.enabled
+  - name: vault
+    version: 0.26.0
+    repository: https://helm.releases.hashicorp.com
+    condition: vault.enabled
+  - name: cert-manager
+    version: v1.13.1
+    repository: https://charts.jetstack.io
+    condition: ingress.tls.enabled

@@ -13,9 +13,29 @@ backend:
       memory: 1Gi
   env:
     config:
-      DJANGO_SETTINGS_MODULE: settings.production
-      DJANGO_DEBUG: "False"
-  
+      DJANGO_ALGOLIA_APPLICATION_REGION: None
+      DJANGO_ALLOWED_HOSTS: "*"
+      DJANGO_CONFIGURATION: Test
+      DJANGO_OPEN_AI_SECRET_KEY: None
+      DJANGO_PUBLIC_IP_ADDRESS: "127.0.0.1"
+      DJANGO_RELEASE_VERSION: None
+    secret:
+      DJANGO_ALGOLIA_APPLICATION_ID: None
+      DJANGO_ALGOLIA_EXCLUDED_LOCAL_INDEX_NAMES: None
+      DJANGO_ALGOLIA_WRITE_API_KEY: None
+      DJANGO_AWS_ACCESS_KEY_ID: None
+      DJANGO_AWS_SECRET_ACCESS_KEY: None
+      DJANGO_DB_HOST: None
+      DJANGO_DB_NAME: None
+      DJANGO_DB_PORT: None
+      DJANGO_DB_PASSWORD: None
+      DJANGO_DB_USER: None
+      DJANGO_SECRET_KEY: None
+      DJANGO_SENTRY_DSN: None
+      DJANGO_SLACK_BOT_TOKEN: None
+      DJANGO_SLACK_SIGNING_SECRET: None
+      GITHUB_TOKEN: None
+
 frontend:
   replicaCount: 2
   image:
@@ -25,6 +45,17 @@ frontend:
     limits:
       cpu: 500m
       memory: 512Mi
+  env:
+    config:
+      VITE_API_URL: http://localhost:8000/api/v1/
+      VITE_ENVIRONMENT: local
+      VITE_GRAPHQL_URL: http://localhost:8000/graphql/
+      VITE_GTM_AUTH: your-google-tag-manager-auth
+      VITE_GTM_ID: your-google-tag-manager-id
+      VITE_GTM_PREVIEW: None
+      VITE_IDX_URL: http://localhost:8000/idx/
+      VITE_RELEASE_VERSION: 
+      VITE_SENTRY_DSN: None
 
 postgresql:
   enabled: true

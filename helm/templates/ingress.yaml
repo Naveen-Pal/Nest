@@ -2,57 +2,33 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "owasp-nest.fullname" . }}-ingress
+  name: {{ .Chart.Name }}-ingress
   annotations:
-    {{- with .Values.ingress.annotations }}
-    {{- toYaml . | nindent 4 }}
+    {{- range $key, $value := .Values.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
     {{- end }}
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      more_set_headers "X-Content-Type-Options: nosniff";
-      more_set_headers "X-Frame-Options: DENY";
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   rules:
-  - host: {{ .Values.global.domain | quote }}
+  - host: {{ .Values.global.domain }}
     http:
       paths:
-        - path: /api
-          pathType: Prefix
-          backend:
-            service:
-              name: {{ include "owasp-nest.fullname" . }}-backend
-              port: 
-                number: {{ .Values.backend.service.port }}
-        - path: /graphql
-          pathType: Prefix
-          backend:
-            service:
-              name: {{ include "owasp-nest.fullname" . }}-backend
-              port: 
-                number: {{ .Values.backend.service.port }}
-        - path: /integrations
-          pathType: Prefix
-          backend:
-            service:
-              name: {{ include "owasp-nest.fullname" . }}-backend
-              port: 
-                number: {{ .Values.backend.service.port }}
-        # Frontend catch-all last
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: {{ include "owasp-nest.fullname" . }}-frontend
-              port:
-                number: {{ .Values.frontend.service.port }}
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Chart.Name }}-frontend
+            port:
+              number: 80
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Chart.Name }}-backend
+            port:
+              number: 8000
   {{- if .Values.ingress.tls }}
   tls:
-  {{- range .Values.ingress.tls }}
-    - hosts:
-      {{- range .hosts }}
-        - {{ . | quote }}
-      {{- end }}
-      secretName: {{ .secretName | quote }}
-  {{- end }}
+    {{- toYaml .Values.ingress.tls | nindent 4 }}
   {{- end }}
 {{- end }}
