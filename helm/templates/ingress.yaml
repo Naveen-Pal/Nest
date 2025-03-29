@@ -2,33 +2,57 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Chart.Name }}-ingress
+  name: {{ include "owasp-nest.fullname" . }}-ingress
   annotations:
-    {{- range $key, $value := .Values.ingress.annotations }}
-    {{ $key }}: {{ $value | quote }}
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
     {{- end }}
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-Frame-Options: DENY";
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   rules:
-  - host: {{ .Values.global.domain }}
+  - host: {{ .Values.global.domain | quote }}
     http:
       paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ .Chart.Name }}-frontend
-            port:
-              number: 80
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ .Chart.Name }}-backend
-            port:
-              number: 8000
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ include "owasp-nest.fullname" . }}-backend
+              port: 
+                number: {{ .Values.backend.service.port }}
+        - path: /graphql
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ include "owasp-nest.fullname" . }}-backend
+              port: 
+                number: {{ .Values.backend.service.port }}
+        - path: /integrations
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ include "owasp-nest.fullname" . }}-backend
+              port: 
+                number: {{ .Values.backend.service.port }}
+        # Frontend catch-all last
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ include "owasp-nest.fullname" . }}-frontend
+              port:
+                number: {{ .Values.frontend.service.port }}
   {{- if .Values.ingress.tls }}
   tls:
-    {{- toYaml .Values.ingress.tls | nindent 4 }}
+  {{- range .Values.ingress.tls }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . | quote }}
+      {{- end }}
+      secretName: {{ .secretName | quote }}
+  {{- end }}
   {{- end }}
 {{- end }}

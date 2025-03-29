@@ -1,7 +1,9 @@
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Chart.Name }}-frontend
+  namespace: owasp-nest
 spec:
   replicas: {{ .Values.frontend.replicaCount }}
   selector:
@@ -13,20 +15,17 @@ spec:
         app: {{ .Chart.Name }}-frontend
     spec:
       containers:
-      - name: frontend
-        image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
-        ports:
-        - containerPort: 3000
-        envFrom:
-        - configMapRef:
-            name: frontend-config
-        resources:
-          {{- toYaml .Values.frontend.resources | nindent 12 }}
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 80
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 80
+        - name: frontend
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "development"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: {{ .Values.frontend.resources.limits.cpu }}
+              memory: {{ .Values.frontend.resources.limits.memory }}

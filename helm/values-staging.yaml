@@ -1,6 +1,6 @@
 global:
   env: staging
-  domain: staging.nest.owasp.org
+  domain: staging.nest.owasp.dev
 
 backend:
   replicaCount: 2

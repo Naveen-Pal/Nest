@@ -1,45 +1,115 @@
 global:
-  env: local
-  domain: nest.local
+  appName: "owasp-nest"
+  environment: "local"
+  domain: "nest.local"
+  clusterDomain: "cluster.local"
 
 backend:
-  replicaCount: 1
+  replicaCount: 2
   image:
     repository: arkid15r/owasp-nest-backend
-    tag: local
+    tag: latest
     pullPolicy: IfNotPresent
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      readOnlyRootFilesystem: true
   resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
     limits:
       cpu: 1000m
       memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+  service:
+    type: ClusterIP
+    port: 8000
 
 frontend:
-  replicaCount: 1
+  replicaCount: 2
   image:
     repository: arkid15r/owasp-nest-frontend
-    tag: local
+    tag: latest
     pullPolicy: IfNotPresent
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      readOnlyRootFilesystem: true
   resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
     limits:
       cpu: 500m
       memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+  service:
+    type: ClusterIP
+    port: 80
 
 postgresql:
   enabled: true
+  architecture: "replication"
   auth:
-    database: nest_db_dev
-    username: nest_user_dev
-    password: nest_user_dev_password
+    database: "nest_db"
+    username: "nest_user"
+    existingSecret: "nest-db-secret"
   persistence:
-    enabled: false
+    enabled: true
+    size: 20Gi
+    storageClass: "gp2"
+  primary:
+    podSecurityContext:
+      fsGroup: 1001
+    containerSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 1001
 
 ingress:
   enabled: true
-  className: nginx
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
   hosts:
-    - host: nest.local
+    - host: "nest.local"
       paths:
         - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: frontend
+              port:
+                number: 80
         - path: /api
-        - path: /docs
-  tls: []
+          pathType: Prefix
+          backend:
+            service:
+              name: backend
+              port:
+                number: 8000
+  tls:
+    - secretName: "nest-tls"
+      hosts:
+        - "nest.local"
+
+vault:
+  enabled: false
+  address: "https://vault.example.com"
+  role: "nest-app"
+
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+  grafana:
+    enabled: true

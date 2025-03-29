@@ -37,20 +37,6 @@ postgresql:
     size: 10Gi
     storageClass: "standard"
 
-prometheus:
-  enabled: true
-  alertmanager:
-    config:
-      global:
-        slack_api_url: ""
-      route:
-        receiver: 'slack'
-      receivers:
-      - name: 'slack'
-        slack_configs:
-        - channel: '#alerts'
-          send_resolved: true
-
 ingress:
   enabled: true
   className: nginx
@@ -67,3 +53,35 @@ ingress:
     - secretName: nest-tls
       hosts:
         - nest.local
+
+prometheus:
+  enabled: true
+  alertmanager:
+    config:
+      global:
+        slack_api_url: ""
+      route:
+        receiver: 'slack'
+      receivers:
+      - name: 'slack'
+        slack_configs:
+        - channel: '#alerts'
+          send_resolved: true
+
+grafana:
+  enabled: true
+  adminPassword: "securepassword"
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: VictoriaMetrics
+          type: prometheus
+          url: http://victoria-metrics-single-server:8428
+          access: proxy
+  dashboards:
+    default:
+      victoriametrics:
+        gnetId: 10229  # Sample VictoriaMetrics dashboard ID
+        revision: 1
+        datasource: VictoriaMetrics
